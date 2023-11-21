@@ -1,6 +1,6 @@
 from subprocess import list2cmdline
 import sys
-
+import datetime
 from numpy import ndarray
 sys.path.insert(0, './yolov5')
 
@@ -24,16 +24,16 @@ import torch.backends.cudnn as cudnn
 
 ########################################
 
-
-source_dir = 'inference/input/test.mp4' # '0'    # 要打开的文件。若要调用摄像头，需要设置为字符串'0'，而不是数字0，按q退出播放
+source_dir = '0'
+# source_dir = 'inference/input/test.mp4' # '0'    # 要打开的文件。若要调用摄像头，需要设置为字符串'0'，而不是数字0，按q退出播放
 output_dir = 'inference/output' # 要保存到的文件夹
 show_video = True   # 运行时是否显示
 save_video = True   # 是否保存运行结果视频
 save_text = True    # 是否保存结果数据到txt文件中，result.txt的格式是(帧序号,框序号,框到左边距离,框到顶上距离,框横长,框竖高,-1,-1,-1,-1)，number.txt的格式是(帧序号，直至当前帧跨过线的框数)
-class_list = [2]    # 类别序号，在coco_classes.txt中查看（注意是序号不是行号），可以有一个或多个类别
+class_list = [0]    # 类别序号，在coco_classes.txt中查看（注意是序号不是行号），可以有一个或多个类别
 big_to_small = 0    # 0表示从比线小的一侧往大的一侧，1反之
 point_idx = 0       # 要检测的方框顶点号(0, 1, 2, 3)，看下边的图，当方框的顶点顺着big_to_small指定的方向跨过检测线时，计数器会+1
-line = [0, 540, 1280, 540]   # 检测线的两个段点的xy坐标，总共4个数
+line = [0, 200, 800, 200]   # 检测线的两个段点的xy坐标，总共4个数
 
 
 ########################################
@@ -394,7 +394,9 @@ def detect(opt):
             cv2.putText(im0, f'num = {total_num}', (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2)    # 画布、内容、左下角坐标、字体、字号（数字大字跟着大）、字颜色、笔画粗细
             if save_txt:
                 with open(out+'/number.txt', 'a') as f:
-                    f.write(f'{frame_idx}\t{total_num}\n')
+                    now = datetime.datetime.now()
+                    timestamp = now.strftime('%Y%m%d%H%M')
+                    f.write(f'{timestamp}\t{frame_idx}\t{total_num}\n')
 
 
             #########################################################

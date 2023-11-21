@@ -1,0 +1,43 @@
+#!/bin/bash
+
+cd 
+# 激活 deepsort 环境
+source deepsort/bin/activate
+
+# 进入 Yolov5_DeepSort_Traffic-counter 目录
+cd ~/Yolov5_DeepSort_Traffic-counter/
+
+# 获取当前日期
+current_date=$(date +"%Y%m%d")
+
+# 启动 python 脚本
+python upcount_v5.py &
+python_pid=$!
+
+# 定义一个函数用于读取并显示最新的 number 文件内容
+read_and_display_latest_number_file() {
+    latest_file=$(ls -t inference/output/number-*.txt | head -n 1)
+    if [ -f "$latest_file" ]; then
+        last_line=$(tail -n 1 "$latest_file")
+        echo "Latest Data from $latest_file: $last_line"
+    fi
+}
+
+# 每五分钟检查一次最新的 number 文件
+while true; do
+    # 读取并显示最新的 number 文件内容
+    read_and_display_latest_number_file
+
+    # 检查日期是否更改
+    new_date=$(date +"%Y%m%d")
+    if [ "$new_date" != "$current_date" ]; then
+        echo "日期更迭，重新启动脚本"
+        kill $python_pid
+        python upcount_v5.py &
+        python_pid=$!
+        current_date=$new_date
+    fi
+
+    # 1分钟上报一次
+    sleep 60
+done
