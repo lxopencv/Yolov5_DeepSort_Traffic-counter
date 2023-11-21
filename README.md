@@ -18,7 +18,7 @@
 
          -- 当软件或系统因手动或意外重新运行时，将查找先前文件并继承统计结果，即统计结果不因为意外请零。
 
-   -- 增加了一个启动程序(laucher.sh)以方便运行，并防止跨日运行，当出现跨日期时，将自动运行软件，以保证每日的number.txt不会因此受到污染。
+      -- 增加了一个启动程序(laucher.sh)以方便运行，并防止跨日运行，当出现跨日期时，将自动运行软件，以保证每日的number.txt不会因此受到污染。
 
 ![image](https://github.com/owo12321/Yolov5_DeepSort_Traffic-counter/blob/main/test.gif)
 
