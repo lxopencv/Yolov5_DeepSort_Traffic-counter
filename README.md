@@ -1,6 +1,23 @@
 # Yolov5_DeepSort_Traffic-counter
 基于Yolov5_DeepSort的移动物体计数器，可以统计车流或人流量等  
-本作品基于此项目实现：https://github.com/mikel-brostrom/Yolov5_DeepSort_Pytorch 在它的基础上做了一些改动，实现了统计画面中经过的物体数量的功能，包括车流、人群等。
+本作品基于此项目实现：[https://github.com/mikel-brostrom/Yolov5_DeepSort_Pytorch](https://github.com/owo12321/Yolov5_DeepSort_Traffic-counter) 在它的基础上做了一些改动，实现了统计画面中经过的物体数量的功能，包括车流、人群等。
+20231121版本更新如下：
+
+      -- 针对人流监控增加了时间戳以方便按时间统计人流数量。
+
+      -- 针对人流监控增加了门店名以方便按门店统计人流数量。
+
+      -- 固化了requirements.txt文件中部分依赖的版本，修复了因为numpy更新导致的函数库问题。
+
+      -- 补充了以下逻辑：
+
+         -- 移除删除output文件并重新生成行为。
+
+         -- 在number.txt文件后方增加生成时间戳，即运行内容可以保存与查看。
+
+         -- 当软件或系统因手动或以外重新运行时，将查找先前文件并继承统计结果，即统计结果不因为意外请零。
+
+   -- 增加了一个启动程序(laucher.sh)以方便运行，并防止跨日运行，当出现跨日期时，将自动运行软件，以保证每日的number.txt不会因此受到污染。
 
 ![image](https://github.com/owo12321/Yolov5_DeepSort_Traffic-counter/blob/main/test.gif)
 
