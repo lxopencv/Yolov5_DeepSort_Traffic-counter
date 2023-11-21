@@ -7,6 +7,12 @@
 ## 1、环境配置
 下载项目文件夹后，在命令行中进入项目文件夹，执行以下代码配置环境：
 ```
+python3 -m venv deepsort
+```
+```
+source deepsort/bin/activate
+```
+```
 pip install -r requirements.txt
 ```
 在Yolov5_DeepSort_Traffic-counter/deep_sort_pytorch/deep_sort/deep/checkpoint路径下需要下载一个文件，链接为
