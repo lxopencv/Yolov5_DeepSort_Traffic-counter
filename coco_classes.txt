@@ -9,7 +9,7 @@ bus(公共汽车)
 train(火车)
 truck(卡车)
 boat(船)
-traffic light(信号灯
+traffic light(信号灯)
 fire hydrant(消防栓)
 stop sign(停车标志)
 parking meter(停车计费器)
