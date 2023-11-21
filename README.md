@@ -13,12 +13,13 @@ python3 -m venv deepsort
 source deepsort/bin/activate
 ```
 ```
+git clone https://github.com/lxopencv/Yolov5_DeepSort_Traffic-counter.git
+```
+```
+cd ~/Yolov5_DeepSort_Traffic-counter/ 
+```
+```
 pip install -r requirements.txt
-```
-在Yolov5_DeepSort_Traffic-counter/deep_sort_pytorch/deep_sort/deep/checkpoint路径下需要下载一个文件，链接为
-```
-链接：https://pan.baidu.com/s/1BwMUM9JGRhMQgmjTu_HXcw?pwd=bwux 
-提取码：bwux 
 ```
 
 ## 2、检测原理
@@ -32,9 +33,10 @@ Yolov5_DeepSort会跟踪画面上检测出来的物体，并给每个框标上�
 ```
 source_dir : 要打开的视频文件。若要调用摄像头，需要设置为字符串'0'，而不是数字0，按q退出播放
 output_dir : 要保存到的文件夹
+store_name ：要使用的店铺名
 show_video : 运行时是否显示
 save_video : 是否保存运行结果视频
-save_text :  是否保存结果数据到txt文件中，将会保存两个文本文件：result.txt和number.txt。result.txt的格式是(帧序号,框序号,框到左边距离,框到顶上距离,框横长,框竖高,-1,-1,-1,-1)，number.txt的格式是(帧序号，直至当前帧跨过线的框数)
+save_text :  是否保存结果数据到txt文件中，将会保存两个文本文件：result.txt和number.txt。result.txt的格式是(帧序号,框序号,框到左边距离,框到顶上距离,框横长,框竖高,-1,-1,-1,-1)，number.txt的格式是(店铺名，时间戳，帧序号，直至当前帧跨过线的框数)
 
 class_list : 要检测的类别序号，在coco_classes.txt中查看（注意是序号不是行号），可以有一个或多个类别
 
@@ -63,7 +65,7 @@ point_idx : 要检测的方框顶点号(0, 1, 2, 3)，看下边的图，当方�
 ```
 
 ## 4、运行
-设置好参数后，python运行count.py文件即可
+设置好参数后，运行文件夹内launcher.sh文件即可
 ```
-python count.py
+./launcher.sh
 ```
