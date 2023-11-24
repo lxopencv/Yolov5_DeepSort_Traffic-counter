@@ -33,6 +33,7 @@ output_dir = 'inference/output' # 要保存到的文件夹
 store_name ='旗舰店' # 要使用的店铺名
 now = datetime.datetime.now()
 current_timestamp = now.strftime("%Y%m%d%H%M%S")
+current_date = datetime.datetime.now().date()
 show_video = True   # 运行时是否显示
 save_video = True   # 是否保存运行结果视频
 save_text = True    # 是否保存结果数据到txt文件中，result.txt的格式是(帧序号,框序号,框到左边距离,框到顶上距离,框横长,框竖高,-1,-1,-1,-1)，number.txt的格式是(店铺名，时间戳，帧序号，直至当前帧跨过线的框数)
@@ -229,26 +230,23 @@ def detect(opt):
 # 查找最新的 number- 文件
     latest_file = max([f for f in os.listdir(output_dir) if f.startswith('number-')], default=None)
     latest_file_path = os.path.join(output_dir, latest_file) if latest_file else None
+# 如果找到最新文件，提取其日期部分
+    if latest_file:
+        file_date_str = latest_file.split('-')[1][:8]  # 提取日期部分 (YYYYMMDD)
+        file_date = datetime.datetime.strptime(file_date_str, "%Y%m%d").date()
+    else:
+        file_date = None
 
 #####################################################
    # 判断是否需要创建新文件
-    if not latest_file or current_timestamp not in latest_file:
+    if not latest_file or file_date != current_date:
+        # 如果是新的一天，创建新文件，total_num 设置为 0
         file_name = f'number-{current_timestamp}.txt'
         file_path = os.path.join(output_dir, file_name)
         total_num = 0
-    # 如果存在旧文件，则从中读取 total_num
-        if latest_file_path and os.path.exists(latest_file_path):
-            with open(latest_file_path, 'r') as file:
-                lines = file.readlines()
-                if lines:
-                    _, _, _, last_total_num = lines[-1].split('\t')
-                    total_num = int(last_total_num.strip())
-    # 创建新文件并写入初始 total_num
-        with open(file_path, 'w') as file:
-            file.write(f'{store_name}\t0{current_timestamp}\t0\t{total_num}\n')
     else:
+        # 如果是同一天，从现有文件中读取 total_num
         file_path = latest_file_path
-    # 从现有文件中读取 total_num
         with open(file_path, 'r') as file:
             lines = file.readlines()
             if lines:
