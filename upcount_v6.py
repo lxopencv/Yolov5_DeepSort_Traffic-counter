@@ -234,6 +234,7 @@ def detect(opt):
     if latest_file:
         file_date_str = latest_file.split('-')[1][:8]  # 提取日期部分 (YYYYMMDD)
         file_date = datetime.datetime.strptime(file_date_str, "%Y%m%d").date()
+        #print(file_date)
     else:
         file_date = None
 
