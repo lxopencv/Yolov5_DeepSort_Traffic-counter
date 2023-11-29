@@ -42,7 +42,7 @@ python3 -m venv deepsort
 source deepsort/bin/activate
 ```
 ```
-https://github.com/lxopencv/Yolov5_DeepSort_Traffic-counter/releases/download/Store-statistics-20231124/Yolov5_DeepSort_Traffic-counter-20231124.zip
+https://github.com/lxopencv/Yolov5_DeepSort_Traffic-counter/releases/download/Store-statistics/Yolov5_DeepSort_Traffic-counter.zip
 ```
 ```
 cd ~/Yolov5_DeepSort_Traffic-counter/ 
