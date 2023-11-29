@@ -62,7 +62,7 @@ Yolov5_DeepSort会跟踪画面上检测出来的物体，并给每个框标上�
 ```
 source_dir : 要打开的视频文件。若要调用摄像头，需要设置为字符串'0'，而不是数字0，按q退出播放
 output_dir : 要保存到的文件夹
-store_name ：要使用的店铺名
+store_name ：由store_configs/store_config.yaml配置店铺名
 show_video : 运行时是否显示
 save_video : 是否保存运行结果视频
 save_text :  是否保存结果数据到txt文件中，将会保存两个文本文件：result.txt和number.txt。result.txt的格式是(帧序号,框序号,框到左边距离,框到顶上距离,框横长,框竖高,-1,-1,-1,-1)，number.txt的格式是(店铺名，时间戳，帧序号，直至当前帧跨过线的框数)
