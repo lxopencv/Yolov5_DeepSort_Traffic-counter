@@ -31,7 +31,12 @@ class YamlParser(edict):
 
 def get_config(config_file=None):
     return YamlParser(config_file=config_file)
-
+def get_store_name(yaml_file_path):
+    if os.path.isfile(yaml_file_path):
+        with open(yaml_file_path, 'r') as file:
+            config = yaml.load(file.read(), Loader=yaml.FullLoader)
+            return config.get('store', '店铺名')
+    return '店铺名'
 
 if __name__ == "__main__":
     cfg = YamlParser(config_file="../configs/yolov3.yaml")

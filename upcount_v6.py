@@ -14,6 +14,7 @@ from yolov5.utils.general import check_img_size, non_max_suppression, scale_coor
 from yolov5.utils.torch_utils import select_device, time_synchronized
 from deep_sort_pytorch.utils.parser import get_config
 from deep_sort_pytorch.deep_sort import DeepSort
+from deep_sort_pytorch.utils.parser import get_store_name
 import argparse
 import os
 import platform
@@ -29,13 +30,15 @@ import torch.backends.cudnn as cudnn
 
 source_dir = '0'
 # source_dir = 'inference/input/test.mp4' # '0'    # 要打开的文件。若要调用摄像头，需要设置为字符串'0'，而不是数字0，按q退出播放
-output_dir = 'inference/output' # 要保存到的文件夹
-store_name ='旗舰店' # 要使用的店铺名
+output_dir = 'inference/output'  # 要保存到的文件夹
+store_name_config_file = 'store_configs/store_name.yaml'
+store_name = get_store_name(store_name_config_file)
+#store_name ='旗舰店' # 要使用的店铺名
 now = datetime.datetime.now()
 current_timestamp = now.strftime("%Y%m%d%H%M%S")
 current_date = datetime.datetime.now().date()
 show_video = True   # 运行时是否显示
-save_video = True   # 是否保存运行结果视频
+save_video = False   # 是否保存运行结果视频
 save_text = True    # 是否保存结果数据到txt文件中，result.txt的格式是(帧序号,框序号,框到左边距离,框到顶上距离,框横长,框竖高,-1,-1,-1,-1)，number.txt的格式是(店铺名，时间戳，帧序号，直至当前帧跨过线的框数)
 class_list = [0]    # 类别序号，在coco_classes.txt中查看（注意是序号不是行号），可以有一个或多个类别
 big_to_small = 0    # 0表示从比线小的一侧往大的一侧，1反之
