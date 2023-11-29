@@ -3,6 +3,7 @@
 本作品基于此项目实现：https://github.com/owo12321/Yolov5_DeepSort_Traffic-counter 在它的基础上做了一些改动，实现门店人流统计。
 
 20231129版本更新如下：
+
       -- 现在可以在配置文件中配置门店名称，方便安装部署。
          --路径：store_configs/store_config.yaml
          --字段：store: "店铺名"
