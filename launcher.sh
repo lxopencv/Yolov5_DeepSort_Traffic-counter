@@ -19,7 +19,7 @@ store_id=$(grep 'store_id:' store_configs/store_name.yaml | awk '{print $2}' | t
 current_date=$(date +"%Y%m%d")
 while true; do
     # 每分钟执行一次
-    sleep 1
+    sleep 60
 
     # 检查最新的 number-<时间戳>.txt 文件
     latest_file=$(ls -t inference/output/number-*.txt | head -n 1)
