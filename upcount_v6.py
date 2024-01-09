@@ -1,10 +1,6 @@
 import datetime
-import os
-from subprocess import list2cmdline
 import sys
 
-
-from numpy import ndarray
 sys.path.insert(0, './yolov5')
 
 from yolov5.utils.google_utils import attempt_download
@@ -15,16 +11,15 @@ from yolov5.utils.torch_utils import select_device, time_synchronized
 from deep_sort_pytorch.utils.parser import get_config
 from deep_sort_pytorch.deep_sort import DeepSort
 from deep_sort_pytorch.utils.parser import get_store_name
+from deep_sort_pytorch.utils.parser import get_store_id
 import argparse
 import os
 import platform
-import shutil
 import time
 from pathlib import Path
 import cv2
 import torch
 import torch.backends.cudnn as cudnn
-
 
 ########################################
 
@@ -33,18 +28,18 @@ source_dir = '0'
 output_dir = 'inference/output'  # 要保存到的文件夹
 store_name_config_file = 'store_configs/store_name.yaml'
 store_name = get_store_name(store_name_config_file)
-#store_name ='旗舰店' # 要使用的店铺名
+store_id = get_store_id(store_name_config_file)
+# store_name ='旗舰店' # 要使用的店铺名
 now = datetime.datetime.now()
 current_timestamp = now.strftime("%Y%m%d%H%M%S")
 current_date = datetime.datetime.now().date()
-show_video = True   # 运行时是否显示
-save_video = False   # 是否保存运行结果视频
-save_text = True    # 是否保存结果数据到txt文件中，result.txt的格式是(帧序号,框序号,框到左边距离,框到顶上距离,框横长,框竖高,-1,-1,-1,-1)，number.txt的格式是(店铺名，时间戳，帧序号，直至当前帧跨过线的框数)
-class_list = [0]    # 类别序号，在coco_classes.txt中查看（注意是序号不是行号），可以有一个或多个类别
-big_to_small = 0    # 0表示从比线小的一侧往大的一侧，1反之
-point_idx = 0       # 要检测的方框顶点号(0, 1, 2, 3)，看下边的图，当方框的顶点顺着big_to_small指定的方向跨过检测线时，计数器会+1
-line = [0, 200, 800, 200]   # 检测线的两个段点的xy坐标，总共4个数
-
+show_video = True  # 运行时是否显示
+save_video = False  # 是否保存运行结果视频
+save_text = True  # 是否保存结果数据到txt文件中，result.txt的格式是(帧序号,框序号,框到左边距离,框到顶上距离,框横长,框竖高,-1,-1,-1,-1)，number.txt的格式是(店铺名，店铺id，时间戳，帧序号，直至当前帧跨过线的框数)
+class_list = [0]  # 类别序号，在coco_classes.txt中查看（注意是序号不是行号），可以有一个或多个类别
+big_to_small = 0  # 0表示从比线小的一侧往大的一侧，1反之
+point_idx = 0  # 要检测的方框顶点号(0, 1, 2, 3)，看下边的图，当方框的顶点顺着big_to_small指定的方向跨过检测线时，计数器会+1
+line = [0, 200, 800, 200]  # 检测线的两个段点的xy坐标，总共4个数
 
 ########################################
 # 一些参数的定义
@@ -84,7 +79,6 @@ elif point_idx == 3:
     y_i = 3
 
 
-
 def point_bigger(line, x, y) -> bool:
     x1 = line[0]
     y1 = line[1]
@@ -103,7 +97,7 @@ def point_bigger(line, x, y) -> bool:
         elif x <= x1:
             return False
 
-    if (x - x1)/(x2 - x1) > (y - y1)/(y2 - y1):
+    if (x - x1) / (x2 - x1) > (y - y1) / (y2 - y1):
         return True
     else:
         return False
@@ -127,7 +121,7 @@ def point_smaller(line, x, y) -> bool:
         elif x >= x1:
             return False
 
-    if (x - x1)/(x2 - x1) < (y - y1)/(y2 - y1):
+    if (x - x1) / (x2 - x1) < (y - y1) / (y2 - y1):
         return True
     else:
         return False
@@ -141,8 +135,8 @@ def judge_size(direction, line, x, y):
     else:
         print('方向错误，只能为0或1！')
 
-########################################
 
+########################################
 
 
 palette = (2 ** 11 - 1, 2 ** 15 - 1, 2 ** 20 - 1)
@@ -159,6 +153,7 @@ def xyxy_to_xywh(*xyxy):
     w = bbox_w
     h = bbox_h
     return x_c, y_c, w, h
+
 
 def xyxy_to_tlwh(bbox_xyxy):
     tlwh_bboxs = []
@@ -201,7 +196,6 @@ def draw_boxes(img, bbox, identities=None, offset=(0, 0)):
     return img
 
 
-
 # 在调用detect()函数进行检测时，记得加上
 # with torch.no_grad():
 #     detect(args)
@@ -212,37 +206,36 @@ def detect(opt):
     webcam = source == '0' or source.startswith(
         'rtsp') or source.startswith('http') or source.endswith('.txt')
 
-#####################################################
+    #####################################################
     # 参数设置
     show_vid = show_video
     save_vid = save_video
     save_txt = save_text
 
-
     # 获取视频的信息
     a = cv2.VideoCapture(source)
-    frame_num = int(a.get(7))   # 总帧数
-    frame_rate = a.get(5)       # 帧速率
-    frame_w = a.get(3)          # 帧宽
-    frame_h = a.get(4)          # 帧高
+    frame_num = int(a.get(7))  # 总帧数
+    frame_rate = a.get(5)  # 帧速率
+    frame_w = a.get(3)  # 帧宽
+    frame_h = a.get(4)  # 帧高
     print(frame_num, frame_rate, frame_w, frame_h)
     a.release()
 
-#####################################################
+    #####################################################
 
-# 查找最新的 number- 文件
+    # 查找最新的 number- 文件
     latest_file = max([f for f in os.listdir(output_dir) if f.startswith('number-')], default=None)
     latest_file_path = os.path.join(output_dir, latest_file) if latest_file else None
-# 如果找到最新文件，提取其日期部分
+    # 如果找到最新文件，提取其日期部分
     if latest_file:
         file_date_str = latest_file.split('-')[1][:8]  # 提取日期部分 (YYYYMMDD)
         file_date = datetime.datetime.strptime(file_date_str, "%Y%m%d").date()
-        #print(file_date)
+        # print(file_date)
     else:
         file_date = None
 
-#####################################################
-   # 判断是否需要创建新文件
+    #####################################################
+    # 判断是否需要创建新文件
     if not latest_file or file_date != current_date:
         # 如果是新的一天，创建新文件，total_num 设置为 0
         file_name = f'number-{current_timestamp}.txt'
@@ -254,12 +247,12 @@ def detect(opt):
         with open(file_path, 'r') as file:
             lines = file.readlines()
             if lines:
-                _, _, _, total_num = lines[-1].split('\t')
+                _, _, _, _, total_num = lines[-1].split('\t')
                 total_num = int(total_num.strip())
     last_frame_point = []
     has_pase_point = []
 
-#####################################################
+    #####################################################
 
     # initialize deepsort
     cfg = get_config()
@@ -277,9 +270,9 @@ def detect(opt):
     print(device)
     ##################################
     if os.path.exists(out):
-#         shutil.rmtree(out)  # delete output folder
-#     os.makedirs(out)  # make new output folder
-     half = device.type != 'cpu'  # half precision only supported on CUDA
+        #         shutil.rmtree(out)  # delete output folder
+        #     os.makedirs(out)  # make new output folder
+        half = device.type != 'cpu'  # half precision only supported on CUDA
 
     # Load model
     model = attempt_load(yolo_weights, map_location=device)  # load FP32 model
@@ -386,11 +379,13 @@ def detect(opt):
                                 last_frame_point.append(point[-1])
                     else:
                         for point in outputs:
-                            if (point[-1] in last_frame_point) and (not judge_size(big_to_small, line, point[x_i], point[y_i])):
+                            if (point[-1] in last_frame_point) and (
+                            not judge_size(big_to_small, line, point[x_i], point[y_i])):
                                 last_frame_point.remove(point[-1])
                                 has_pase_point.append(point[-1])
                                 total_num += 1
-                            elif (point[-1] not in last_frame_point) and judge_size(big_to_small, line, point[x_i], point[y_i]):
+                            elif (point[-1] not in last_frame_point) and judge_size(big_to_small, line, point[x_i],
+                                                                                    point[y_i]):
                                 last_frame_point.append(point[-1])
                         for point_idx in last_frame_point:
                             if point_idx not in outputs[:, -1]:
@@ -416,8 +411,9 @@ def detect(opt):
                                 # f.write(('%g ' * 10 + '\n') % (frame_idx, identity, bbox_top,
                                 #                             bbox_left, bbox_w, bbox_h, -1, -1, -1, -1))  # label format
                                 f.write(('%g ' * 10 + '\n') % (frame_idx, identity, bbox_left,
-                                                            bbox_top, bbox_w, bbox_h, -1, -1, -1, -1))  # label format
-                                                        # 修改后的格式为：帧序号、框序号、框到左边距离、框到顶上距离、框横长、框竖高，原命名应该是把顶上和左边命名写反了
+                                                               bbox_top, bbox_w, bbox_h, -1, -1, -1,
+                                                               -1))  # label format
+                                # 修改后的格式为：帧序号、框序号、框到左边距离、框到顶上距离、框横长、框竖高，原命名应该是把顶上和左边命名写反了
             else:
                 deepsort.increment_ages()
 
@@ -426,14 +422,14 @@ def detect(opt):
 
             #########################################################
 
-            cv2.line(im0, (line[0], line[1]), (line[2], line[3]), (255, 0, 0), 2)   # 画布、起点坐标、终点坐标、线颜色、线粗细
-            cv2.putText(im0, f'num = {total_num}', (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2)    # 画布、内容、左下角坐标、字体、字号（数字大字跟着大）、字颜色、笔画粗细
+            cv2.line(im0, (line[0], line[1]), (line[2], line[3]), (255, 0, 0), 2)  # 画布、起点坐标、终点坐标、线颜色、线粗细
+            cv2.putText(im0, f'num = {total_num}', (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0),
+                        2)  # 画布、内容、左下角坐标、字体、字号（数字大字跟着大）、字颜色、笔画粗细
             if save_txt:
                 with open(file_path, 'a') as f:
                     now = datetime.datetime.now()
-                    #timestamp = now.strftime('%Y%m%d%H%M')
-                    f.write(f'{store_name}\t{current_timestamp}\t{frame_idx}\t{total_num}\n')
-
+                    # timestamp = now.strftime('%Y%m%d%H%M')
+                    f.write(f'{store_name}\t{store_id}\t{current_timestamp}\t{frame_idx}\t{total_num}\n')
 
             #########################################################
 
@@ -471,7 +467,8 @@ def detect(opt):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--yolo_weights', type=str, default='yolov5/weights/yolov5s.pt', help='model.pt path')
-    parser.add_argument('--deep_sort_weights', type=str, default='deep_sort_pytorch/deep_sort/deep/checkpoint/ckpt.t7', help='ckpt.t7 path')
+    parser.add_argument('--deep_sort_weights', type=str, default='deep_sort_pytorch/deep_sort/deep/checkpoint/ckpt.t7',
+                        help='ckpt.t7 path')
     # file/folder, 0 for webcam
     parser.add_argument('--source', type=str, default=source_dir, help='source')
     parser.add_argument('--output', type=str, default=output_dir, help='output folder')  # output folder

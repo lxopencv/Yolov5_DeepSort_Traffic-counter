@@ -2,6 +2,14 @@
 基于Yolov5_DeepSort的移动物体计数器，可以统计车流或人流量等  
 本作品基于此项目实现：https://github.com/owo12321/Yolov5_DeepSort_Traffic-counter 在它的基础上做了一些改动，实现门店人流统计。
 
+20240108版本更新如下：
+
+      -- 增加了店铺ID字段store_id，以方便以店铺ID方式上报到上游接口
+         -- 路径：store_configs/store_name.yaml
+         -- 字段：store_id: "店铺ID"
+      -- 调整number-<时间戳>.txt 文件，增加store_id字段
+      -- 启动程序(launcher.sh)增加上传接口数据功能
+
 20231129版本更新如下：
 
       -- 现在可以在配置文件中配置门店名称，方便安装部署。

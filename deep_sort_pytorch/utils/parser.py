@@ -37,6 +37,12 @@ def get_store_name(yaml_file_path):
             config = yaml.load(file.read(), Loader=yaml.FullLoader)
             return config.get('store', '店铺名')
     return '店铺名'
+def get_store_id(yaml_file_path):
+    if os.path.isfile(yaml_file_path):
+        with open(yaml_file_path, 'r') as file:
+            config = yaml.load(file.read(), Loader=yaml.FullLoader)
+            return config.get('store_id', '店铺编号')
+    return '店铺编号'
 
 if __name__ == "__main__":
     cfg = YamlParser(config_file="../configs/yolov3.yaml")
@@ -44,3 +50,4 @@ if __name__ == "__main__":
 
     import ipdb
     ipdb.set_trace()
+

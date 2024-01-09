@@ -8,25 +8,38 @@ source ~/deepsort/bin/activate
 # 进入 Yolov5_DeepSort_Traffic-counter 目录
 cd ~/Yolov5_DeepSort_Traffic-counter/
 
-# 当前日期
-current_date=$(date +"%Y%m%d")
-
 # 启动 upcount_v6.py 脚本
 python upcount_v6.py &
-
-# 获取 upcount_v6.py 的进程 ID
 pid=$!
 
-# 循环直到日期变化
+# 获取 store_id 一次，避免在循环中重复执行
+store_id=$(grep 'store_id:' store_configs/store_name.yaml | awk '{print $2}' | tr -d '"')
+
+# 组合循环以检查文件更新和日期变化
+current_date=$(date +"%Y%m%d")
 while true; do
-    # 每分钟检查最新的 number-<时间戳>.txt 文件
+    # 每分钟执行一次
+    sleep 1
+
+    # 检查最新的 number-<时间戳>.txt 文件
     latest_file=$(ls -t inference/output/number-*.txt | head -n 1)
     if [[ -n "$latest_file" ]]; then
-        echo "最新数据:"
-        tail -n1 "$latest_file"
-    fi
+        # 读取文件的最后一行并提取traffic_count
+        last_line=$(tail -n 1 "$latest_file")
+        traffic_count=$(echo $last_line | cut -d' ' -f5)
 
-    sleep 60
+        # 使用当前系统时间作为date
+        current_system_date=$(date +'%Y-%m-%d %H:%M:%S')
+
+        # 构造JSON数据
+        json_data="{\"store_id\": \"$store_id\", \"date\": \"$current_system_date\", \"traffic_count\": $traffic_count}"
+
+        # 打印JSON数据
+        echo "JSON data to be sent: $json_data"
+
+        # 发送POST请求（暂时注释掉，便于测试）
+        curl -X POST http://192.168.50.132:8084/Admin/StoreDailyTraffic/addTraffic -H "Content-Type: application/json" -d "$json_data"
+    fi
 
     # 检查日期是否变化
     new_date=$(date +"%Y%m%d")
