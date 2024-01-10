@@ -35,7 +35,8 @@ current_timestamp = now.strftime("%Y%m%d%H%M%S")
 current_date = datetime.datetime.now().date()
 show_video = True  # 运行时是否显示
 save_video = False  # 是否保存运行结果视频
-save_text = True  # 是否保存结果数据到txt文件中，result.txt的格式是(帧序号,框序号,框到左边距离,框到顶上距离,框横长,框竖高,-1,-1,-1,-1)，number.txt的格式是(店铺名，店铺id，时间戳，帧序号，直至当前帧跨过线的框数)
+save_text = True  # 是否保存结果数据到txt文件中，result.txt的格式是(帧序号,框序号,框到左边距离,框到顶上距离,框横长,框竖高,-1,-1,-1,-1)，number.txt的格式是(
+# 店铺名，店铺id，时间戳，帧序号，直至当前帧跨过线的框数)
 class_list = [0]  # 类别序号，在coco_classes.txt中查看（注意是序号不是行号），可以有一个或多个类别
 big_to_small = 0  # 0表示从比线小的一侧往大的一侧，1反之
 point_idx = 0  # 要检测的方框顶点号(0, 1, 2, 3)，看下边的图，当方框的顶点顺着big_to_small指定的方向跨过检测线时，计数器会+1
@@ -380,7 +381,7 @@ def detect(opt):
                     else:
                         for point in outputs:
                             if (point[-1] in last_frame_point) and (
-                            not judge_size(big_to_small, line, point[x_i], point[y_i])):
+                                    not judge_size(big_to_small, line, point[x_i], point[y_i])):
                                 last_frame_point.remove(point[-1])
                                 has_pase_point.append(point[-1])
                                 total_num += 1
