@@ -38,7 +38,7 @@ while true; do
         echo "JSON data to be sent: $json_data"
 
         # 发送POST请求（暂时注释掉，便于测试）
-        curl -X POST https://192.168.50.234:8084/Admin/StoreDailyTraffic/addTraffic -H "Content-Type: application/json" -d "$json_data"
+        curl -X POST https://192.168.50.132:8084/Admin/StoreDailyTraffic/addTraffic -H "Content-Type: application/json" -d "$json_data"
     fi
 
     # 检查日期是否变化
