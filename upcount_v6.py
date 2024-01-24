@@ -196,6 +196,21 @@ def draw_boxes(img, bbox, identities=None, offset=(0, 0)):
                                  t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 2, [255, 255, 255], 2)
     return img
 
+def is_valid_line(line):
+    # 检查行是否包含 <0X00>
+    return "<0X00>" not in line
+
+def find_valid_total_num(lines):
+    # 从文件中向前查找，直到找到有效的 total_num
+    for line in reversed(lines):
+        if is_valid_line(line) and line.count('\t') >= 4:
+            try:
+                _, _, _, _, total_num = line.split('\t')
+                return int(total_num.strip())
+            except ValueError:
+                # 如果在解析时仍然出现 ValueError，跳过这一行
+                continue
+    return 0  # 如果没有找到有效行，则返回 0
 
 # 在调用detect()函数进行检测时，记得加上
 # with torch.no_grad():
@@ -231,11 +246,9 @@ def detect(opt):
     if latest_file:
         file_date_str = latest_file.split('-')[1][:8]  # 提取日期部分 (YYYYMMDD)
         file_date = datetime.datetime.strptime(file_date_str, "%Y%m%d").date()
-        # print(file_date)
     else:
         file_date = None
 
-    #####################################################
     # 判断是否需要创建新文件
     if not latest_file or file_date != current_date:
         # 如果是新的一天，创建新文件，total_num 设置为 0
@@ -247,9 +260,8 @@ def detect(opt):
         file_path = latest_file_path
         with open(file_path, 'r') as file:
             lines = file.readlines()
-            if lines:
-                _, _, _, _, total_num = lines[-1].split('\t')
-                total_num = int(total_num.strip())
+            total_num = find_valid_total_num(lines)  # 查找有效的 total_num
+
     last_frame_point = []
     has_pase_point = []
 
