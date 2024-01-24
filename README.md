@@ -3,6 +3,9 @@
 本作品基于此项目实现：https://github.com/owo12321/Yolov5_DeepSort_Traffic-counter 在它的基础上做了一些改动，实现门店人流统计。
 
 20240108版本更新如下：
+      -- 修正了一个在异常断电时可能存在16进制写入的异常输出导致无法正常启动的问题
+
+20240108版本更新如下：
 
       -- 增加了店铺ID字段store_id，以方便以店铺ID方式上报到上游接口
          -- 路径：store_configs/store_name.yaml
