@@ -15,6 +15,9 @@ pid=$!
 # 获取 store_id 一次，避免在循环中重复执行
 store_id=$(grep 'store_id:' store_configs/store_name.yaml | awk '{print $2}' | tr -d '"')
 
+# 记录脚本启动的时间戳
+start_time=$(date +%s)
+
 # 组合循环以检查文件更新和日期变化
 current_date=$(date +"%Y%m%d")
 while true; do
@@ -55,5 +58,16 @@ while true; do
         # 重新启动 upcount_v6.py 脚本
         python upcount_v6.py &
         pid=$!
+    fi
+
+    # 检查是否已经过去了4个小时
+    current_time=$(date +%s)
+    elapsed=$((current_time - start_time))
+    if [ $elapsed -ge 14400 ]; then
+        echo "已过去4个小时，准备重启电脑..."
+        # 重启电脑
+        reboot
+        # 更新开始时间，以便在重启后继续计时
+        start_time=$(date +%s)
     fi
 done
